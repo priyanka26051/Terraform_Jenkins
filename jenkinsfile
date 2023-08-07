@@ -1,6 +1,6 @@
 pipeline {
 	parameters {
-		boolenParam(name: 'autoApprove', defaultValue: flase, description: 'Automatically run apply after geberating plan')
+		boolenParam(name: 'autoApprove', defaultValue: false, description: "Automatically run apply after geberating plan")
 		}
 	environment {
 		AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
