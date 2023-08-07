@@ -1,0 +1,52 @@
+pipeline {
+	parameters {
+		boolenParam(name: 'autoapprove', 'defaultValue: flase, description: 'Automatically run apply after geberating plan?')
+		}
+	environment {
+		AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+		AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+	}
+		agent any {
+			stages {
+				stage ('checkout') {
+					steps {
+					  scripts {
+					    dir ("terraform")
+							{
+							 git https://github.com/priyanka26051/Terraform_Jenkins.git"
+							 } 
+							 }
+							} 
+					}
+				stage ('plan') {
+					steps {
+					  scripts {	
+						sh 'pwd;cd terraform/ ; terraform init'
+						sh "pwd;cd terraform/ ; terraform plan -out tfplan"
+						sh 'pwd;cd terraform/ ; terraform show -no color > tfplan.txt'
+				stage ('Approval') {
+					when {
+						not {
+							equals expected: true, actual: params.autoApprove
+							}
+						}	
+					}	
+				stage ('plan') {
+					steps {
+					  scripts {	
+                          def plan = readFile 'terraform/tfplan.txt'
+						  input message: "Do you want to apply the plan?"
+						  parameters: [text(name: 'plan', description: 'Please review the plan', defaultValue: Plan)]
+						  }
+						} 
+					}
+				stage('Apply')
+					steps {
+						sh "pwd;cd terraform/ ; terraform apply -input=flase tfplan"
+						}
+					}
+				}	
+			}
+		}
+	}	
+} 
